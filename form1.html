@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>FORM 2</title>
+
+  </head>
+  <body style="background-color:  #D4E6F1 ">
+
+    <h4>Final Practice  -  Lucia Schmidt Santiago (02791991K)</h4>
+    <h1 style="color:#9c27b0 ">Lets get information about the human and other vertebrates genome from the Ensembl database.</h1>
+
+    <br>
+    <h2 style="color:#af7ac5">BASIC LEVEL</h2>
+    <form action="listSpecies" method="get">
+      <h3>List of available species in the database:</h3>
+      If you want to limit the number of shown species, enter here the wished number:
+      <input type="number" min="0" max="162" name=limit>
+      <br>
+      <input type="submit"/>
+      <br><br>
+    </form>
+
+    <form action="karyotype" method="get">
+      <h3>Karyotype:</h3>
+      Select here the species' karyotype you want to search for:
+      <input type="text" name="specie">
+      <br>
+      <input type="submit"/>
+      <br><br>
+    </form>
+
+    <form action="chromosomeLength">
+      <h3>Chromosome's Length:</h3>
+      Please enter a species and a choromosome respectively:
+      <input type="text" name="specie">
+      <input type="text" name="chromo">
+      <br>
+      <input type="submit"/>
+       <br><br>
+    </form>
+
+  </body>
+</html>
