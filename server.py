@@ -48,15 +48,19 @@ class TestHandler(http.server.BaseHTTPRequestHandler):  # We are creating object
 
                 decoded = r.json()
 
-                lista = []
+                species = ''
                 for i in range(len(decoded['species'])):
-                    specie = '\nCommon name: ' + decoded['species'][i]['common_name'] + '\nScientific name: ' + decoded['species'][i]['name']
-                    lista = lista.append(decoded['species'][i]['common_name'])
-                    print(specie)
+                    specie = '\nName: ' + decoded['species'][i]['common_name'] #+ '// Scientific name: ' + decoded['species'][i]['name']
+                    if specie in species:
+                        pass
+                    else:
+                        species += specie
+                        species += ', '
+                print(species)
 
                 file = open('form2.html', 'r')
                 content = file.read()
-                content = content.replace('----', ','.join(lista))
+                content = content.replace('----', species)
                 self.wfile.write(str.encode(content))
 
 
