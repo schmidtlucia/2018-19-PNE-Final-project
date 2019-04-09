@@ -1,4 +1,4 @@
-# This is the web server of Practice 6
+# This is the server o the final practice
 
 import http.server
 import socketserver
@@ -48,18 +48,47 @@ class TestHandler(http.server.BaseHTTPRequestHandler):  # We are creating object
 
                 decoded = r.json()
 
-                species = ''
-                for i in range(len(decoded['species'])):
-                    specie = '\nName: ' + decoded['species'][i]['common_name'] #+ '// Scientific name: ' + decoded['species'][i]['name']
-                    if specie in species:
-                        pass
+
+                if 'limit' in req_line:
+                    variables = req_line.partition('?')[2]
+
+                    if variables == 'limit=':
+                        title = 'List of available species in the database:'
+                        species = ''
+                        for i in range(len(decoded['species'])):
+                            specie = 'Common name: ' + decoded['species'][i]['common_name'] + '\n  Scientific name: ' + decoded['species'][i]['name'] + '\n\n'
+
+                            if specie in species:
+                                pass
+                            else:                                                                                                                                                                           
+                                species += specie
                     else:
-                        species += specie
-                        species += ', '
-                print(species)
+                        limit = variables.partition('=')[2]
+                        title = 'List of available species in the database (max '+ limit + '):'
+                        species = ''
+                        for i in range(int(limit)):
+                            specie = 'Common name: ' + decoded['species'][i]['common_name'] + '\n  Scientific name: ' + decoded['species'][i]['name'] + '\n\n'
+
+                            if specie in species:
+                                pass
+                            else:
+                                species += specie
+
+                else:
+                    title = 'List of available species in the database:'
+                    species = ''
+                    for i in range(len(decoded['species'])):
+                        specie = 'Common name: ' + decoded['species'][i]['common_name'] + '\n  Scientific name: ' + decoded['species'][i]['name'] + '\n\n'
+
+                        if specie in species:
+                            pass
+                        else:
+                            species += specie
+
 
                 file = open('form2.html', 'r')
                 content = file.read()
+                content = content.replace('TITLE', title)
                 content = content.replace('----', species)
                 self.wfile.write(str.encode(content))
 
