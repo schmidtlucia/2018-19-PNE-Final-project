@@ -35,6 +35,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):  # We are creating object
             self.wfile.write(str.encode(content))
 
         else:
+
             if 'listSpecies' in req_line:
 
                 server = "http://rest.ensembl.org"
@@ -90,7 +91,22 @@ class TestHandler(http.server.BaseHTTPRequestHandler):  # We are creating object
                 content = file.read()
                 content = content.replace('TITLE', title)
                 content = content.replace('----', species)
-                self.wfile.write(str.encode(content))
+
+            elif 'karyotype' in req_line:
+                specie = req_line.partition('=')[2]
+
+                server = "http://rest.ensembl.org"
+                ext = "/info/assembly/goat?"
+
+                r = requests.get(server + ext, headers={"Content-Type": "application/json"})
+
+                if not r.ok:
+                    r.raise_for_status()
+                    sys.exit()
+
+                decoded = r.json()
+                content = (repr(decoded['karyotype']))
+                print(content)
 
 
 
@@ -98,7 +114,8 @@ class TestHandler(http.server.BaseHTTPRequestHandler):  # We are creating object
                 file = open('error.html', 'r')
                 content = file.read()
 
-                self.wfile.write(str.encode(content))
+
+            self.wfile.write(str.encode(content))
 
 # -- MAIN PROGRAM
 
