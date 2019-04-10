@@ -54,7 +54,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):  # We are creating object
                     variables = req_line.partition('?')[2]
 
                     if variables == 'limit=':
-                        title = 'List of available species in the database:'
+                        title = 'List of all available species in the database:'
                         species = ''
                         for i in range(len(decoded['species'])):
                             specie = 'Common name: ' + decoded['species'][i]['common_name'] + '\n  Scientific name: ' + decoded['species'][i]['name'] + '\n\n'
@@ -65,7 +65,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):  # We are creating object
                                 species += specie
                     else:
                         limit = variables.partition('=')[2]
-                        title = 'List of available species in the database (max '+ limit + '):'
+                        title = 'List of available species in the database (max ' + limit + '):'
                         species = ''
                         for i in range(int(limit)):
                             specie = 'Common name: ' + decoded['species'][i]['common_name'] + '\n  Scientific name: ' + decoded['species'][i]['name'] + '\n\n'
@@ -76,7 +76,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):  # We are creating object
                                 species += specie
 
                 else:
-                    title = 'List of available species in the database:'
+                    title = 'List of all available species in the database:'
                     species = ''
                     for i in range(len(decoded['species'])):
                         specie = 'Common name: ' + decoded['species'][i]['common_name'] + '\n  Scientific name: ' + decoded['species'][i]['name'] + '\n\n'
@@ -93,10 +93,10 @@ class TestHandler(http.server.BaseHTTPRequestHandler):  # We are creating object
                 content = content.replace('----', species)
 
             elif 'karyotype' in req_line:
-                specie = req_line.partition('=')[2]
+                specie = req_line.partition('=')[2].lower()
 
                 server = "http://rest.ensembl.org"
-                ext = "/info/assembly/goat?"
+                ext = "/info/assembly/" + specie + "?"
 
                 r = requests.get(server + ext, headers={"Content-Type": "application/json"})
 
@@ -105,10 +105,36 @@ class TestHandler(http.server.BaseHTTPRequestHandler):  # We are creating object
                     sys.exit()
 
                 decoded = r.json()
-                content = (repr(decoded['karyotype']))
-                print(content)
+                kar = (repr(decoded['karyotype']))
 
+                title = 'This is the Karyotype of th following specie: ' + specie
+                file = open('form2.html', 'r')
+                content = file.read()
+                content = content.replace('TITLE', title)
+                content = content.replace('----', kar)
 
+            elif 'chromosomeLength' in req_line:
+                variables = req_line.partition('?')[2].partition('&')
+                specie = variables[0].partition('=')[2]
+                chromo = variables[2].partition('=')[2]
+
+                server = "http://rest.ensembl.org"
+                ext = "/info/assembly/" + specie + "/" + chromo + "?"
+
+                r = requests.get(server + ext, headers={"Content-Type": "application/json"})
+
+                if not r.ok:
+                    r.raise_for_status()
+                    sys.exit()
+
+                decoded = r.json()
+                length = repr(decoded['length'])
+
+                title = 'The chromosome ' + chromo + ' of the ' + specie + ' species has the following length: '
+                file = open('form2.html', 'r')
+                content = file.read()
+                content = content.replace('TITLE', title)
+                content = content.replace('----', length)
 
             else:
                 file = open('error.html', 'r')
