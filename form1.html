@@ -12,9 +12,10 @@
 
     <br>
     <h2 style="color:#af7ac5">BASIC LEVEL</h2>
+
     <form action="listSpecies" method="get">
-      <h3>List of available species in the database:</h3>
-      If you want to limit the number of shown species, enter here the wished number:
+      <h3>List of available specie in the database:</h3>
+      If you want to limit the number of shown specie, enter here the wished number:
       <input type="number" min="0" max="198" name=limit>
       <br>
       <input type="submit"/>
@@ -23,7 +24,7 @@
 
     <form action="karyotype" method="get">
       <h3>Karyotype:</h3>
-      Select here the species' karyotype you want to search for:
+      Select here the specie's karyotype you want to search for:
       <input type="text" name="specie">
       <br>
       <input type="submit"/>
@@ -32,12 +33,32 @@
 
     <form action="chromosomeLength">
       <h3>Chromosome's Length:</h3>
-      Please enter a species and a choromosome respectively:
+      Please enter a specie and a choromosome respectively:
       <input type="text" name="specie">
       <input type="text" name="chromo">
       <br>
       <input type="submit"/>
        <br><br>
+    </form>
+
+    <h2 style="color:#af7ac5">MEDIUM LEVEL</h2>
+
+    <form action="geneSeq" method="get">
+      <h3>Sequence of given gene:</h3>
+      Please enter here the human gene whose DNA sequence you want to search for:
+      <input type="text" name="gene">
+      <br>
+      <input type="submit"/>
+      <br><br>
+    </form>
+
+    <form action="geneInfo" method="get">
+      <h3>Information about the given gene:</h3>
+      Please enter here the human gene whose start, length, id and chromosome you want to search for:
+      <input type="text" name="gene">
+      <br>
+      <input type="submit"/>
+      <br><br>
     </form>
 
   </body>
