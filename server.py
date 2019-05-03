@@ -1,4 +1,4 @@
-# This is the server o the final practice
+# This is the server of the final practice
 
 import http.server
 import socketserver
@@ -12,6 +12,9 @@ PORT = 8000
 
 # here we are creating a function for opening the information file and replacing the title and the information
 def open_file(title, information):
+    """This function opens our response HTML file, and takes the two given arguments and replaces the key signals,
+    'TITLE' and '----', for them, returning the final response for the user."""
+
     file = open('form2.html', 'r')
     content = file.read()
     content = content.replace('TITLE', title)
@@ -210,13 +213,13 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                             perc = 0
                         return perc
 
-                    percA = str(perc('A', length))
-                    percC = str(perc('C', length))
-                    percG = str(perc('G', length))
-                    percT = str(perc('T', length))
+                    perca = str(perc('A', length))
+                    percc = str(perc('C', length))
+                    percg = str(perc('G', length))
+                    perct = str(perc('T', length))
 
                     title = 'This are the asked calculations about the ' + gene + ' human gene: '
-                    info = 'ID: ' + ID + '\nTotal length: ' + str(length) + '\nPercentage of A bases: ' + percA + '%\nPercentage of C bases: ' + percC + '%\nPercentage of G bases: ' + percG + '%\nPercentage of T bases: ' + percT + '%'
+                    info = 'ID: ' + ID + '\nTotal length: ' + str(length) + '\nPercentage of A bases: ' + perca + '%\nPercentage of C bases: ' + percc + '%\nPercentage of G bases: ' + percg + '%\nPercentage of T bases: ' + perct + '%'
 
                     content = open_file(title, info)
 
@@ -226,7 +229,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             # if the user wants to get a list of genes over a region, the program will enter this elif
             elif 'geneList' in req_line:
 
-                # we are here extracting all the values of the variables enteres by the user
+                # we are here extracting all the values of the variables entered by the user
                 variables = req_line.partition('?')[2]
                 chromo = variables.split('&')[0].partition('=')[2]
                 start = variables.split('&')[1].partition('=')[2]
@@ -239,9 +242,17 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 if not r.ok:
                     r.raise_for_status()
                     sys.exit()
-
                 content = r.json()
-                print(repr(content))
+
+                # for every object in the list provided by the Api, we have a gene with  its respectively name and id
+                # for printing them in our browser, we are creating an empty string and adding one by one iterating over the list
+                genes = ''
+                for i in range(len(content)):
+                    gene = '\nGene: ' + str(content[i]['external_name']) + '\n    (Id: ' + str(content[i]['id']) + ')'
+                    genes += gene
+
+                title = 'This is the list of genes contained in the chromosome number ' + chromo + ' over the selected region ' + start + ' - ' + end + ':'
+                content = open_file(title, genes)
 
             # if endpoints are wrongly entered, we show an error file
             else:
@@ -251,10 +262,12 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
             # we encode our content for later printing it in the browser
             self.wfile.write(str.encode(content))
 
+
 # -- MAIN PROGRAM
 
 # connecting to server
-with socketserver.TCPServer(("", PORT), TestHandler) as httpd:  # an empty IP adress means: 'use your own IP'
+with socketserver.TCPServer(("", PORT), TestHandler) as httpd:  # an empty IP aDdress means: 'use your own IP'
+
     print('Serving at PORT {}'.format(PORT))
 
     try:

@@ -17,7 +17,7 @@
     <form action="listSpecies" method="get">
       <h3>List of available specie in the database:</h3>
       If you want to limit the number of shown specie, enter here the wished number:
-      <input type="number" min="0" name=limit>
+      <input type="number" min="0" placeholder="limit" name=limit>
       <br>
       <input type="submit"/>
       <br><br>
@@ -26,7 +26,7 @@
     <form action="karyotype" method="get">
       <h3>Karyotype:</h3>
       Select here the specie's karyotype you want to search for:
-      <input type="text" name="specie">
+      <input type="text" placeholder="specie" name="specie">
       <br>
       <input type="submit"/>
       <br><br>
@@ -35,8 +35,8 @@
     <form action="chromosomeLength">
       <h3>Chromosome's Length:</h3>
       Please enter a specie and a choromosome respectively:
-      <input type="text" name="specie">
-      <input type="text" name="chromo">
+      <input type="text" placeholder="specie" name="specie">
+      <input type="text" placeholder="chromosome" name="chromo">
       <br>
       <input type="submit"/>
        <br><br>
@@ -47,7 +47,7 @@
     <form action="geneSeq" method="get">
       <h3>Sequence of given gene:</h3>
       Please enter here the human gene whose DNA sequence you want to search for:
-      <input type="text" name="gene">
+      <input type="text" placeholder="human gene" name="gene">
       <br>
       <input type="submit"/>
       <br><br>
@@ -56,7 +56,7 @@
     <form action="geneInfo" method="get">
       <h3>Information about the given gene:</h3>
       Please enter here the human gene whose start, length, id and chromosome you want to search for:
-      <input type="text" name="gene">
+      <input type="text" placeholder="human gene" name="gene">
       <br>
       <input type="submit"/>
       <br><br>
@@ -65,7 +65,7 @@
       <form action="geneCalc" method="get">
       <h3>Calculations on the given gene:</h3>
       Please enter here the human gene whose length and percentage of its bases you want to know:
-      <input type="text" name="gene">
+      <input type="text" placeholder="human gene" name="gene">
       <br>
       <input type="submit"/>
       <br><br>
@@ -74,9 +74,9 @@
       <form action="geneList" method="get">
       <h3>List of genes of the given chromosome:</h3>
       Please enter the start and end of the region of a given chromosome of the human specie which list of species you want to know:
-      <input type="text" name="chromo">
-      <input type="number" min="0" name="start">
-      <input type="number" min="0" name="end">
+      <input type="text" placeholder="human chromosome" name="chromo">
+      <input type="number" min="0" placeholder="start" name="start">
+      <input type="number" min="0" placeholder="end" name="end">
       <br>
       <input type="submit"/>
       <br><br>
