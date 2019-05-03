@@ -10,6 +10,15 @@ socketserver.TCPServer.allow_reuse_address = True
 PORT = 8000
 
 
+# here we are creating a function for opening the information file and replacing the title and the information
+def open_file(title, information):
+    file = open('form2.html', 'r')
+    content = file.read()
+    content = content.replace('TITLE', title)
+    content = content.replace('----', information)
+    return content
+
+
 class TestHandler(http.server.BaseHTTPRequestHandler):
 
     def do_GET(self):
@@ -45,12 +54,9 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 # this is the endpoint for retrieving species information from the API
                 server = "http://rest.ensembl.org"
                 ext = "/info/species?"
-
                 r = requests.get(server + ext, headers={"Content-Type": "application/json"})
-
                 if not r.ok:
                     r.raise_for_status()
-                    sys.exit()
 
                 decoded = r.json()
 
@@ -88,10 +94,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
 
                 # here we open the HTML file and replace from it the word 'TITLE' for the variable 'title' shown above and '----' for the actual information extracted from Ensembl
-                file = open('form2.html', 'r')
-                content = file.read()
-                content = content.replace('TITLE', title)
-                content = content.replace('----', species)
+                content = open_file(title, species)
 
             # we now check if the user has asked for information about the karyotype
             elif 'karyotype' in req_line:
@@ -100,9 +103,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 # we extract the information from the data base
                 server = "http://rest.ensembl.org"
                 ext = "/info/assembly/" + specie + "?"
-
                 r = requests.get(server + ext, headers={"Content-Type": "application/json"})
-
                 if not r.ok:
                     r.raise_for_status()
                     sys.exit()
@@ -113,10 +114,7 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
                 # we replace key values in our HTML for the information extracted
                 title = 'This is the Karyotype of th following specie: ' + specie
-                file = open('form2.html', 'r')
-                content = file.read()
-                content = content.replace('TITLE', title)
-                content = content.replace('----', kar)
+                content = open_file(title, kar)
 
             # here we will be giving information about the length of a chromosome of a given specie
             elif 'chromosomeLength' in req_line:
@@ -126,11 +124,10 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 specie = variables[0].partition('=')[2]
                 chromo = variables[2].partition('=')[2]
 
+                # code for reaching the information in Ensembl
                 server = "http://rest.ensembl.org"
                 ext = "/info/assembly/" + specie + "/" + chromo + "?"
-
                 r = requests.get(server + ext, headers={"Content-Type": "application/json"})
-
                 if not r.ok:
                     r.raise_for_status()
                     sys.exit()
@@ -141,23 +138,20 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
 
                 # we change the HTML file for printing the correct information
                 title = 'The chromosome ' + chromo + ' of the ' + specie + ' species has the following length: '
-                file = open('form2.html', 'r')
-                content = file.read()
-                content = content.replace('TITLE', title)
-                content = content.replace('----', length)
+                content = open_file(title, length)
 
-            # here we will be giving the dna seq of a human gene
-            elif 'geneSeq' in req_line:
+            # here we will be giving the dna seq of a human gene and the information
+            # as we need the gene's ID and sequence in all this endpoints, we are doing them in one single elif clause
+            elif 'geneSeq' in req_line or 'geneInfo' in req_line or 'geneCalc' in req_line:
 
                 # we need to extract the entered information by the the user: the gene
                 gene = str(req_line.partition('=')[2])
 
-                # this is the code given by the API REST for retrieving the information
+                # this is the code given by the API REST for retrieving the information of the gene
+                # we are searching now for the ID
                 server = "http://rest.ensembl.org"
                 ext = "/xrefs/symbol/homo_sapiens/" + gene + "?"
-
                 r = requests.get(server + ext, headers={"Content-Type": "application/json"})
-
                 if not r.ok:
                     r.raise_for_status()
                     sys.exit()
@@ -170,57 +164,84 @@ class TestHandler(http.server.BaseHTTPRequestHandler):
                 # the API REST gives us following code for searching such information
                 server = "http://rest.ensembl.org"
                 ext = "/sequence/id/" + ID + "?"
-
                 r = requests.get(server + ext, headers={"Content-Type": "text/plain"})
-
                 if not r.ok:
                     r.raise_for_status()
                     sys.exit()
-
                 sequence = r.text
 
                 # we change the HTML file for printing the correct information
                 title = 'The DNA sequence of the ' + gene + ' human gene is: '
-                file = open('form2.html', 'r')
-                content = file.read()
-                content = content.replace('TITLE', title)
-                content = content.replace('----', sequence)
+                content = open_file(title, sequence)
 
-            #here we will be giving start, end, length, id and chromosome of the entered gene
-            elif 'geneInfo' in req_line:
+                # we now want to know more information about a specific gene, therefore we use the variables described above 'gene' and 'sequence':
+                if 'geneInfo' in req_line:
 
-                # we extract the gene entered by user
-                gene = str(req_line.partition('=')[2])
+                    # this is the code given by the API REST for retrieving the info
+                    server = "http://rest.ensembl.org"
+                    ext = "/lookup/symbol/homo_sapiens/" + gene + "?expand=1"
+                    r = requests.get(server + ext, headers={"Content-Type": "application/json"})
+                    if not r.ok:
+                        r.raise_for_status()
+                        sys.exit()
 
-                # this is the code given by the API REST for retrieving the info
+                    # extract the information from the file given by the Ensembl data base
+                    decoded = r.json()
+                    start = repr(decoded['start'])
+                    end = repr(decoded['end'])
+                    chromo = repr(decoded['seq_region_name'])
+                    length = len(sequence)
+
+                    title = 'This is the required information of the ' + gene + ' human gene: '
+                    info = 'ID: ' + ID + '\nThe gene\'s start is : ' + str(start) + '\nThe gene\'s end is: ' + str(end) + '\nIts length is: ' + str(length) + '\nAnd it is in the ' + str(chromo) + ' chromosome.'
+
+                    content = open_file(title, info)
+
+                elif 'geneCalc' in req_line:
+
+                    length = len(sequence)
+
+                    # we calculate the percentage of the bases
+                    def perc(base, length):
+                        num = sequence.count(base)
+                        if num > 0:
+                            perc = round(100.0 * num / length, 1)
+                        else:
+                            perc = 0
+                        return perc
+
+                    percA = str(perc('A', length))
+                    percC = str(perc('C', length))
+                    percG = str(perc('G', length))
+                    percT = str(perc('T', length))
+
+                    title = 'This are the asked calculations about the ' + gene + ' human gene: '
+                    info = 'ID: ' + ID + '\nTotal length: ' + str(length) + '\nPercentage of A bases: ' + percA + '%\nPercentage of C bases: ' + percC + '%\nPercentage of G bases: ' + percG + '%\nPercentage of T bases: ' + percT + '%'
+
+                    content = open_file(title, info)
+
+                else:
+                    pass
+
+            # if the user wants to get a list of genes over a region, the program will enter this elif
+            elif 'geneList' in req_line:
+
+                # we are here extracting all the values of the variables enteres by the user
+                variables = req_line.partition('?')[2]
+                chromo = variables.split('&')[0].partition('=')[2]
+                start = variables.split('&')[1].partition('=')[2]
+                end = variables.split('&')[2].partition('=')[2]
+
+                # code given by the API rest for reaching the information
                 server = "http://rest.ensembl.org"
-                ext = "/lookup/symbol/homo_sapiens/" + gene + "?expand=1"
-
+                ext = "/overlap/region/human/" + chromo + ":" + start + "-" + end + "?feature=gene"
                 r = requests.get(server + ext, headers={"Content-Type": "application/json"})
-
                 if not r.ok:
                     r.raise_for_status()
                     sys.exit()
 
-                # extract the information from the file given by the Ensembl data base
-                decoded = r.json()
-                start = repr(decoded['start'])
-                end = repr(decoded['end'])
-                ID = str(decoded['id'])
-                chromo = repr(decoded['seq_region_name'])
-
-                # get lkength of its DNA sequence
-                server2 = "http://rest.ensembl.org/sequence/id/" + ID + "?"
-                r = requests.get(server2, headers={"Content-Type": "text/plain"})
-                length = len(r.text)
-
-                # we change the HTML file for printing the correct information
-                title = 'This is the required information of the ' + gene + ' human gene: '
-                info = 'The gene\'s start is : ' + str(start) + '\nThe gene\'s end is: ' + str(end) + '\nIts length is: ' + str(length) + '\nAnd it is in the ' + str(chromo) + ' chromosome.'
-                file = open('form2.html', 'r')
-                content = file.read()
-                content = content.replace('TITLE', title)
-                content = content.replace('----', info)
+                content = r.json()
+                print(repr(content))
 
             # if endpoints are wrongly entered, we show an error file
             else:
